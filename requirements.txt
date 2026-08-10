@@ -1,0 +1,13 @@
+streamlit
+pandas
+pyarrow
+duckdb
+langchain
+langchain-anthropic
+langchain-core
+chromadb
+plotly
+python-dotenv
+anthropic
+pydantic
+pysqlite3-binary
