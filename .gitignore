@@ -1,1 +1,7 @@
-
+.env
+data/
+audit_logs/
+reports/
+.chroma/
+__pycache__/
+*.pyc
