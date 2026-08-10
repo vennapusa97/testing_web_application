@@ -310,6 +310,15 @@ def render_results_screen(state: dict):
         )
         st.markdown(chips, unsafe_allow_html=True)
 
+    # Full generated report (charts, query results table, detailed analysis)
+    # lives in the report HTML file, NOT in the hero card above — the hero
+    # only shows the short direct_answer text pulled from the JSON sidecar.
+    # This embed is what actually renders the Plotly charts.
+    with st.expander("View full report (charts, data table, detailed analysis)", expanded=True):
+        with open(report_path, "r", encoding="utf-8") as f:
+            report_html_content = f.read()
+        st.components.v1.html(report_html_content, height=1200, scrolling=True)
+
     if "open_drawer" not in st.session_state:
         st.session_state.open_drawer = None
 
