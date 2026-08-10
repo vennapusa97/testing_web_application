@@ -505,19 +505,42 @@ else:
 main_col, audit_col = st.columns([3.4, 1.4], gap="large")
 
 with audit_col:
+    st.markdown(
+        f"""
+        <style>
+        .idamp-audit-sticky {{
+            position: sticky;
+            top: 1rem;
+        }}
+        .idamp-audit-scroll {{
+            max-height: 65vh;
+            overflow-y: auto;
+            padding-right: 4px;
+        }}
+        .idamp-audit-scroll .idamp-card {{ margin-bottom: 8px; }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.markdown("<div class='idamp-audit-sticky'>", unsafe_allow_html=True)
     st.markdown("### Audit trail")
     logs = _current_audit_logs()
     if not logs:
         st.info("No audit events yet.")
     else:
-        for entry in reversed(logs[-15:]):
-            st.markdown(
-                f"<div class='idamp-card'><div style='font-size:10px;color:{theme['ink_faint']};'>"
-                f"{html.escape(str(entry.get('timestamp',''))[11:19])}</div>"
-                f"<div style='font-size:12px;color:{theme['ink']};font-weight:600;'>"
-                f"{html.escape(str(entry.get('agent','')))} | {html.escape(str(entry.get('action','')))}</div></div>",
-                unsafe_allow_html=True,
-            )
+        # Newest first, all entries joined into ONE html block so the max-height
+        # + overflow-y:auto container actually scrolls internally instead of
+        # each st.markdown call rendering as a separate unbounded element that
+        # forces the whole page to scroll to see older entries.
+        cards = "".join(
+            f"<div class='idamp-card'><div style='font-size:10px;color:{theme['ink_faint']};'>"
+            f"{html.escape(str(entry.get('timestamp',''))[11:19])}</div>"
+            f"<div style='font-size:12px;color:{theme['ink']};font-weight:600;'>"
+            f"{html.escape(str(entry.get('agent','')))} | {html.escape(str(entry.get('action','')))}</div></div>"
+            for entry in reversed(logs)
+        )
+        st.markdown(f"<div class='idamp-audit-scroll'>{cards}</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
 with main_col:
     if st.session_state.phase == "upload":
