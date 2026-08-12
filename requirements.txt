@@ -10,4 +10,5 @@ plotly
 python-dotenv
 anthropic
 pydantic
+plotly
 pysqlite3-binary
