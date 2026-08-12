@@ -119,6 +119,36 @@ STUDIO_CSS = """
     background: var(--gold) !important; color: #2a1c04 !important; border: none !important; font-weight: 700 !important;
 }
 
+.studio-upload-header {
+    background: var(--panel); border: 1.5px dashed var(--hair-strong); border-radius: 14px;
+    padding: 10px 16px; margin-bottom: -6px; display: flex; align-items: center; gap: 10px;
+}
+.studio-upload-icon {
+    width: 32px; height: 32px; border-radius: 9px; background: var(--gold-dim); color: var(--gold);
+    display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0;
+}
+.studio-upload-title { font-size: 12.5px; font-weight: 600; }
+.studio-upload-sub { font-size: 10.5px; color: var(--ink-faint); }
+
+/* Streamlit's documented data-testid hooks for the file uploader. These are
+   stable public selectors, but Streamlit has changed internal DOM structure
+   across versions before -- if this doesn't visually match after deploy,
+   open browser DevTools, inspect the uploader, and check the actual
+   data-testid attribute Streamlit is rendering in your version. */
+div[data-testid="stFileUploaderDropzone"] {
+    background: var(--panel-2) !important; border: 1.5px dashed var(--hair-strong) !important;
+    border-radius: 0 0 14px 14px !important; border-top: none !important;
+}
+div[data-testid="stFileUploaderDropzoneInstructions"] { color: var(--ink-dim) !important; }
+section[data-testid="stFileUploadDropzone"] {
+    background: var(--panel-2) !important; border: 1.5px dashed var(--hair-strong) !important;
+}
+
+.stTextArea textarea {
+    background: var(--panel) !important; border: 1px solid var(--hair-strong) !important;
+    color: var(--ink) !important; border-radius: 12px !important;
+}
+
 section[data-testid="stSidebar"] { background-color: var(--panel); border-right: 1px solid var(--hair); }
 </style>
 """
@@ -500,11 +530,28 @@ render_trace(st.session_state.phase)
 
 if st.session_state.phase == "upload":
     st.markdown("### Start a new analysis")
-    st.caption("Upload your raw data and describe what you want to learn from it.")
-    uploaded_files = st.file_uploader("CSV files", type=["csv"], accept_multiple_files=True)
-    business_intent = st.text_area("Business intent", height=90, placeholder="Which product category had the highest sales decline in Q4?")
+    st.caption("Upload your raw data and describe what you want to learn from it. The pipeline handles profiling, cleansing, and materialisation \u2014 you approve each step.")
 
-    if st.button("Start workflow ->", type="primary", disabled=not (uploaded_files and business_intent)):
+    st.markdown(
+        "<div class='studio-upload-header'>"
+        "<div class='studio-upload-icon'>\u2913</div>"
+        "<div><div class='studio-upload-title'>Drag CSV files here</div>"
+        "<div class='studio-upload-sub'>or use Browse files below \u00b7 multiple files supported</div></div>"
+        "</div>",
+        unsafe_allow_html=True,
+    )
+    uploaded_files = st.file_uploader("CSV files", type=["csv"], accept_multiple_files=True, label_visibility="collapsed")
+
+    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+    st.markdown("**Business intent**")
+    business_intent = st.text_area(
+        "Business intent", height=90,
+        placeholder="Which product category had the highest sales decline in Q4?",
+        label_visibility="collapsed",
+    )
+    st.caption("Be specific \u2014 this drives every downstream STTM rule and the final report.")
+
+    if st.button("Start workflow \u2192", type="primary", disabled=not (uploaded_files and business_intent)):
         saved_paths = []
         for uf in uploaded_files:
             save_path = str(LANDING_DIR / uf.name)
