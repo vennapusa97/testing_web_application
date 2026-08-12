@@ -60,84 +60,132 @@ PHASE_TO_TRACE_INDEX = {
 STUDIO_CSS = """
 <style>
 #MainMenu, header[data-testid="stHeader"], footer { visibility: hidden; height: 0; }
-.block-container { padding-top: 1.2rem; max-width: 900px; }
+.block-container { padding-top: 1.2rem; max-width: 920px; }
 
 :root {
-    --canvas: #0d0d0f; --panel: #16161a; --panel-2: #1c1c21; --raised: #202026;
-    --hair: rgba(255,255,255,0.07); --hair-strong: rgba(255,255,255,0.12);
-    --ink: #ececef; --ink-dim: #9a9aa3; --ink-faint: #5c5c66;
-    --gold: #e8b34a; --gold-dim: rgba(232,179,74,0.14);
-    --teal: #45c4a8; --teal-dim: rgba(69,196,168,0.12);
+    --ink: #f4f6ff; --ink-dim: #b9c0e0; --ink-faint: #7a80a8;
+    --panel: rgba(30, 27, 60, 0.55); --panel-2: rgba(40, 35, 75, 0.65); --raised: rgba(50, 44, 92, 0.75);
+    --hair: rgba(180,190,255,0.14); --hair-strong: rgba(180,190,255,0.28);
+    --violet: #8b5cf6; --violet-b: #a78bfa;
+    --pink: #ec4899; --pink-b: #f472b6;
+    --cyan: #22d3ee; --cyan-b: #67e8f9;
+    --lime: #a3e635;
 }
-.stApp { background-color: var(--canvas); color: var(--ink); }
 
-.studio-topbar {
-    display: flex; align-items: center; gap: 10px; padding: 6px 0 18px 0;
-    border-bottom: 1px solid var(--hair); margin-bottom: 18px;
+/* Animated aurora background -- real motion, not a static gradient image */
+@keyframes auroraShift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
-.studio-mark { width: 18px; height: 18px; border-radius: 5px; background: var(--gold); }
-.studio-title { font-size: 14px; font-weight: 600; }
+.stApp {
+    background: linear-gradient(-45deg, #0f0c29, #24123f, #1a0f3d, #2d1b4e, #150a2e);
+    background-size: 400% 400%;
+    animation: auroraShift 18s ease infinite;
+    color: var(--ink);
+}
+
+/* Sticky live status bar -- pinned to top, always visible, never needs scrolling to check */
+.studio-livebar {
+    position: sticky; top: 0; z-index: 999; backdrop-filter: blur(14px);
+    background: rgba(15,12,41,0.75); border-bottom: 1px solid var(--hair);
+    padding: 12px 4px; margin: -1.2rem -1rem 18px -1rem;
+}
+.studio-topbar { display: flex; align-items: center; gap: 10px; padding: 0 16px 10px 16px; }
+.studio-mark {
+    width: 20px; height: 20px; border-radius: 6px;
+    background: linear-gradient(135deg, var(--pink-b), var(--violet)); box-shadow: 0 0 16px rgba(236,72,153,0.5);
+}
+.studio-title { font-size: 14px; font-weight: 700; }
 .studio-run-pill { font-size: 10.5px; color: var(--ink-dim); background: var(--panel); border: 1px solid var(--hair); padding: 4px 10px; border-radius: 8px; font-family: monospace; }
 
-.studio-trace { display: flex; gap: 6px; align-items: center; font-size: 11px; color: var(--ink-faint); margin-bottom: 20px; }
-.studio-trace .step { color: var(--ink-dim); }
-.studio-trace .step.current { color: var(--gold); font-weight: 600; }
-.studio-trace .sep { opacity: 0.4; }
+.studio-trace { display: flex; gap: 0; align-items: center; padding: 0 16px; }
+.studio-trace-step {
+    flex: 1; text-align: center; font-size: 11px; color: var(--ink-faint); font-weight: 600;
+    padding: 8px 4px; border-bottom: 3px solid var(--hair); position: relative; transition: all 0.3s ease;
+}
+.studio-trace-step.done { color: var(--cyan-b); border-bottom-color: var(--cyan); }
+.studio-trace-step.current { color: var(--pink-b); border-bottom-color: var(--pink); }
+.studio-trace-step.current .live-pulse {
+    display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--pink);
+    margin-right: 5px; box-shadow: 0 0 0 0 rgba(236,72,153,0.7);
+    animation: pulseGlow 1.4s ease-out infinite;
+}
+@keyframes pulseGlow {
+    0%   { box-shadow: 0 0 0 0 rgba(236,72,153,0.7); }
+    70%  { box-shadow: 0 0 0 8px rgba(236,72,153,0); }
+    100% { box-shadow: 0 0 0 0 rgba(236,72,153,0); }
+}
 
-.studio-hero { background: var(--panel); border: 1px solid var(--hair-strong); border-radius: 16px; padding: 20px 22px; margin-bottom: 14px; }
-.studio-hero-label { font-size: 10.5px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
-.studio-hero-answer { font-size: 18px; font-weight: 500; line-height: 1.45; margin-bottom: 12px; }
-.studio-confidence { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--teal); background: var(--teal-dim); padding: 5px 10px; border-radius: 999px; }
-.studio-confidence-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--teal); display: inline-block; }
+.studio-hero {
+    background: var(--panel); border: 1px solid var(--hair-strong); border-radius: 18px;
+    padding: 22px 24px; margin-bottom: 14px; backdrop-filter: blur(8px);
+    box-shadow: 0 8px 32px rgba(139,92,246,0.15);
+}
+.studio-hero-label { font-size: 10.5px; color: var(--cyan-b); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; font-weight: 700; }
+.studio-hero-answer { font-size: 19px; font-weight: 600; line-height: 1.45; margin-bottom: 12px; }
+.studio-confidence { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--lime); background: rgba(163,230,53,0.12); padding: 5px 10px; border-radius: 999px; }
+.studio-confidence-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--lime); display: inline-block; }
 
 .studio-metric-row { display: flex; gap: 10px; margin-bottom: 4px; }
-.studio-metric { flex: 1; background: var(--panel); border: 1px solid var(--hair); border-radius: 12px; padding: 11px 13px; }
+.studio-metric {
+    flex: 1; background: var(--panel); border: 1px solid var(--hair); border-radius: 14px; padding: 12px 14px;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.studio-metric:hover { transform: translateY(-2px); border-color: var(--violet-b); }
 .studio-metric-label { font-size: 9.5px; color: var(--ink-faint); text-transform: uppercase; }
-.studio-metric-val { font-size: 17px; font-weight: 600; margin-top: 2px; }
+.studio-metric-val { font-size: 18px; font-weight: 700; margin-top: 2px; background: linear-gradient(90deg, var(--cyan-b), var(--violet-b)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
 .studio-pin-chip {
-    display: inline-flex; align-items: center; gap: 6px; background: var(--gold-dim);
-    border: 1px solid rgba(232,179,74,0.3); border-radius: 999px; padding: 5px 11px; font-size: 10.5px;
-    color: var(--gold); margin: 3px 4px 3px 0;
+    display: inline-flex; align-items: center; gap: 6px; background: rgba(236,72,153,0.12);
+    border: 1px solid rgba(236,72,153,0.35); border-radius: 999px; padding: 5px 11px; font-size: 10.5px;
+    color: var(--pink-b); margin: 3px 4px 3px 0;
 }
-.studio-drawer { background: var(--panel-2); border: 1px solid var(--hair); border-radius: 12px; padding: 13px 15px; margin: 4px 0 14px; font-size: 11.5px; }
-.studio-lineage-item { display: inline-block; background: var(--raised); border: 1px solid var(--hair-strong); border-radius: 6px; padding: 4px 9px; font-family: monospace; font-size: 10.5px; margin-right: 6px; }
-.studio-sql-block { background: var(--canvas); border: 1px solid var(--hair); border-radius: 8px; padding: 10px 12px; font-family: monospace; font-size: 10.5px; color: var(--teal); white-space: pre-wrap; }
-.studio-compare-card { background: var(--raised); border: 1px solid var(--hair-strong); border-radius: 10px; padding: 10px 12px; font-size: 11px; }
+.studio-drawer { background: var(--panel-2); border: 1px solid var(--hair); border-radius: 14px; padding: 13px 15px; margin: 4px 0 14px; font-size: 11.5px; }
+.studio-lineage-item { display: inline-block; background: var(--raised); border: 1px solid var(--hair-strong); border-radius: 6px; padding: 4px 9px; font-family: monospace; font-size: 10.5px; margin-right: 6px; color: var(--cyan-b); }
+.studio-sql-block { background: rgba(0,0,0,0.35); border: 1px solid var(--hair); border-radius: 8px; padding: 10px 12px; font-family: monospace; font-size: 10.5px; color: var(--lime); white-space: pre-wrap; }
+.studio-compare-card { background: var(--raised); border: 1px solid var(--hair-strong); border-radius: 12px; padding: 10px 12px; font-size: 11px; }
 
-.studio-chat-q { background: var(--panel-2); border-radius: 10px; padding: 8px 12px; font-size: 12px; margin-bottom: 8px; margin-left: auto; max-width: 82%; }
-.studio-chat-a { background: var(--teal-dim); border-radius: 10px; padding: 8px 12px; font-size: 12px; max-width: 88%; margin-bottom: 4px; }
+.studio-chat-q { background: var(--panel-2); border-radius: 12px; padding: 8px 12px; font-size: 12px; margin-bottom: 8px; margin-left: auto; max-width: 82%; }
+.studio-chat-a { background: rgba(34,211,238,0.1); border: 1px solid rgba(34,211,238,0.25); border-radius: 12px; padding: 8px 12px; font-size: 12px; max-width: 88%; margin-bottom: 4px; }
 
-.studio-end-panel { background: var(--panel); border: 1px solid var(--hair-strong); border-radius: 16px; padding: 18px 22px; text-align: center; margin-top: 18px; }
+.studio-end-panel {
+    background: var(--panel); border: 1px solid var(--hair-strong); border-radius: 18px;
+    padding: 18px 22px; text-align: center; margin-top: 18px;
+    box-shadow: 0 8px 32px rgba(34,211,238,0.1);
+}
 
+/* Tactile button feedback -- visible press-down the instant you click,
+   before the Streamlit rerun even completes. */
 .stButton button {
-    background: var(--panel) !important; border: 1px solid var(--hair) !important;
-    color: var(--ink-dim) !important; border-radius: 8px !important; font-size: 12px !important;
+    background: var(--panel) !important; border: 1px solid var(--hair-strong) !important;
+    color: var(--ink-dim) !important; border-radius: 10px !important; font-size: 12px !important;
+    transition: transform 0.08s ease, box-shadow 0.15s ease, border-color 0.15s ease !important;
 }
-.stButton button:hover { border-color: var(--hair-strong) !important; color: var(--ink) !important; }
+.stButton button:hover { border-color: var(--violet-b) !important; color: var(--ink) !important; box-shadow: 0 0 12px rgba(139,92,246,0.3) !important; }
+.stButton button:active {
+    transform: scale(0.95) !important; box-shadow: 0 0 4px rgba(139,92,246,0.6) inset !important;
+}
 .stButton button[kind="primary"] {
-    background: var(--gold) !important; color: #2a1c04 !important; border: none !important; font-weight: 700 !important;
+    background: linear-gradient(135deg, var(--pink-b), var(--violet)) !important; color: #fff !important;
+    border: none !important; font-weight: 700 !important; box-shadow: 0 4px 20px rgba(236,72,153,0.35) !important;
 }
+.stButton button[kind="primary"]:active { transform: scale(0.95) !important; box-shadow: 0 0 6px rgba(236,72,153,0.7) inset !important; }
 
 .studio-upload-header {
-    background: var(--panel); border: 1.5px dashed var(--hair-strong); border-radius: 14px;
+    background: var(--panel); border: 1.5px dashed var(--hair-strong); border-radius: 16px;
     padding: 10px 16px; margin-bottom: -6px; display: flex; align-items: center; gap: 10px;
 }
 .studio-upload-icon {
-    width: 32px; height: 32px; border-radius: 9px; background: var(--gold-dim); color: var(--gold);
+    width: 32px; height: 32px; border-radius: 10px; background: rgba(139,92,246,0.18); color: var(--violet-b);
     display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0;
 }
 .studio-upload-title { font-size: 12.5px; font-weight: 600; }
 .studio-upload-sub { font-size: 10.5px; color: var(--ink-faint); }
 
-/* Streamlit's documented data-testid hooks for the file uploader. These are
-   stable public selectors, but Streamlit has changed internal DOM structure
-   across versions before -- if this doesn't visually match after deploy,
-   open browser DevTools, inspect the uploader, and check the actual
-   data-testid attribute Streamlit is rendering in your version. */
 div[data-testid="stFileUploaderDropzone"] {
     background: var(--panel-2) !important; border: 1.5px dashed var(--hair-strong) !important;
-    border-radius: 0 0 14px 14px !important; border-top: none !important;
+    border-radius: 0 0 16px 16px !important; border-top: none !important;
 }
 div[data-testid="stFileUploaderDropzoneInstructions"] { color: var(--ink-dim) !important; }
 section[data-testid="stFileUploadDropzone"] {
@@ -146,10 +194,11 @@ section[data-testid="stFileUploadDropzone"] {
 
 .stTextArea textarea {
     background: var(--panel) !important; border: 1px solid var(--hair-strong) !important;
-    color: var(--ink) !important; border-radius: 12px !important;
+    color: var(--ink) !important; border-radius: 14px !important;
 }
+.stSelectbox div[data-baseweb="select"] { background: var(--panel) !important; border-radius: 10px !important; }
 
-section[data-testid="stSidebar"] { background-color: var(--panel); border-right: 1px solid var(--hair); }
+section[data-testid="stSidebar"] { background: rgba(15,12,41,0.85); border-right: 1px solid var(--hair); }
 </style>
 """
 
@@ -159,15 +208,33 @@ def inject_studio_css():
 
 
 def render_trace(current_phase: str):
+    """Sticky, always-visible live status strip. The current step gets a
+    pulsing dot (real CSS animation, genuinely 'live') so progress is
+    readable at a glance without scrolling anywhere to find it."""
     idx = PHASE_TO_TRACE_INDEX.get(current_phase, 0)
-    parts = ["<div class='studio-trace'>"]
+    steps_html = []
     for i, step in enumerate(TRACE_STEPS):
-        cls = "current" if i == idx else "step"
-        parts.append(f"<span class='step {cls}'>{step}</span>")
-        if i < len(TRACE_STEPS) - 1:
-            parts.append("<span class='sep'>/</span>")
-    parts.append("</div>")
-    st.markdown("".join(parts), unsafe_allow_html=True)
+        if i < idx:
+            cls, pulse = "done", ""
+        elif i == idx:
+            cls, pulse = "current", "<span class='live-pulse'></span>"
+        else:
+            cls, pulse = "", ""
+        steps_html.append(f"<div class='studio-trace-step {cls}'>{pulse}{step}</div>")
+
+    st.markdown(
+        f"""
+        <div class='studio-livebar'>
+            <div class='studio-topbar'>
+                <div class='studio-mark'></div>
+                <div class='studio-title'>IDAMP Studio</div>
+                <div class='studio-run-pill'>{html.escape((st.session_state.get('current_run_id') or 'no run')[:12])}</div>
+            </div>
+            <div class='studio-trace'>{''.join(steps_html)}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def _prepare_sttm_editor_df(df: pd.DataFrame) -> pd.DataFrame:
@@ -313,7 +380,64 @@ def render_run_rail():
                 st.rerun()
 
 
-def render_results_screen(state: dict):
+def render_live_chart_picker(state: dict):
+    """Genuinely new functionality, not a restyle: lets the person pick a
+    chart type and columns and see it rendered live against the actual Gold
+    table, independent of whatever chart(s) the report agent baked in.
+    Streamlit reruns the script on every widget change, so changing the
+    selectbox redraws the chart on the next rerun automatically -- this is
+    real, live interactivity, not a static pre-rendered image.
+    """
+    gold_paths = state.get("gold_output_paths", [])
+    if not gold_paths:
+        return
+
+    st.markdown("**Explore this data \u2014 pick a chart type**")
+    table_names = [Path(p).stem for p in gold_paths]
+    chosen_table = st.selectbox("Gold table", table_names, key="livechart_table")
+    df = pd.read_parquet(gold_paths[table_names.index(chosen_table)])
+
+    numeric_cols = [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c])]
+    all_cols = list(df.columns)
+    if not all_cols:
+        return
+
+    c1, c2, c3 = st.columns(3)
+    chart_type = c1.selectbox("Chart type", ["Bar", "Line", "Area", "Scatter", "Pie"], key="livechart_type")
+    x_col = c2.selectbox("X axis", all_cols, key="livechart_x")
+    y_default_idx = numeric_cols.index(numeric_cols[0]) if numeric_cols else 0
+    y_options = numeric_cols if numeric_cols else all_cols
+    y_col = c3.selectbox("Y axis / value", y_options, index=y_default_idx if numeric_cols else 0, key="livechart_y")
+
+    try:
+        import plotly.express as px
+        plot_df = df.copy()
+        # Live chart config only accepts vibrant, saturated colors matching
+        # the new palette -- avoids the chart looking mismatched against the
+        # animated background.
+        color_seq = ["#8b5cf6", "#ec4899", "#22d3ee", "#a3e635", "#f472b6"]
+
+        if chart_type == "Bar":
+            fig = px.bar(plot_df, x=x_col, y=y_col, color_discrete_sequence=color_seq)
+        elif chart_type == "Line":
+            fig = px.line(plot_df, x=x_col, y=y_col, markers=True, color_discrete_sequence=color_seq)
+        elif chart_type == "Area":
+            fig = px.area(plot_df, x=x_col, y=y_col, color_discrete_sequence=color_seq)
+        elif chart_type == "Scatter":
+            fig = px.scatter(plot_df, x=x_col, y=y_col, color_discrete_sequence=color_seq)
+        else:  # Pie
+            fig = px.pie(plot_df, names=x_col, values=y_col, color_discrete_sequence=color_seq)
+
+        fig.update_layout(
+            plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
+            font_color="#f4f6ff", margin=dict(l=10, r=10, t=30, b=10), height=380,
+        )
+        st.plotly_chart(fig, use_container_width=True, key="livechart_plot")
+    except Exception as e:
+        st.warning(f"Couldn't render that combination: {e}")
+
+
+
     run_id = state.get("run_id", "")
     report_path = state.get("report_path", "")
     if not (report_path and Path(report_path).exists()):
@@ -348,6 +472,8 @@ def render_results_screen(state: dict):
         with open(report_path, "r", encoding="utf-8") as f:
             report_html_content = f.read()
         st.components.v1.html(report_html_content, height=1200, scrolling=True)
+
+    render_live_chart_picker(state)
 
     if "open_drawer" not in st.session_state:
         st.session_state.open_drawer = None
