@@ -2,27 +2,26 @@ __import__("pysqlite3")
 import sys as _sys
 _sys.modules["sqlite3"] = _sys.modules.pop("pysqlite3")
 
-"""IDAMP Studio - full UI rebuild on the "restrained graphite + gold + teal"
-design direction (mockups: idamp_studio_final.html / _upload.html /
-_after_results.html).
-
-Honesty notes on where real Streamlit diverges from the static mockup:
-- No true hover dropdown for Export -- it's a toggle button that reveals three
-  real st.download_button widgets below it. Streamlit has no native hover
-  menu; faking one with pure CSS is fragile across Streamlit versions.
-- STTM approval still uses st.data_editor (styled via CSS), not a custom
-  toggle-switch table -- data_editor is what makes the checkboxes/edits
-  actually work; a purely decorative HTML table would need to reimplement
-  editing from scratch for no functional gain.
-- "Fork this run" only forks from the Gold STTM checkpoint. Forking from
-  Bronze would need the original uploaded CSV paths, which the orchestrator's
-  pipeline_started audit event doesn't currently log (same limitation noted
-  when run-history resume was first built). Forking from Gold is fully
-  supported because silver_output_paths + sttm_gold_path are already stored
-  per run.
-- The native Streamlit header/menu/footer are hidden via CSS so the custom
-  top bar is the only chrome visible.
-"""
+# IDAMP Studio - full UI rebuild on the "restrained graphite + gold + teal"
+# design direction (mockups: idamp_studio_final.html / _upload.html /
+# _after_results.html).
+#
+# Honesty notes on where real Streamlit diverges from the static mockup:
+# - No true hover dropdown for Export -- it's a toggle button that reveals
+#   three real st.download_button widgets below it. Streamlit has no native
+#   hover menu; faking one with pure CSS is fragile across Streamlit versions.
+# - STTM approval still uses st.data_editor (styled via CSS), not a custom
+#   toggle-switch table -- data_editor is what makes the checkboxes/edits
+#   actually work; a purely decorative HTML table would need to reimplement
+#   editing from scratch for no functional gain.
+# - "Fork this run" only forks from the Gold STTM checkpoint. Forking from
+#   Bronze would need the original uploaded CSV paths, which the
+#   orchestrator's pipeline_started audit event doesn't currently log (same
+#   limitation noted when run-history resume was first built). Forking from
+#   Gold is fully supported because silver_output_paths + sttm_gold_path are
+#   already stored per run.
+# - The native Streamlit header/menu/footer are hidden via CSS so the custom
+#   top bar is the only chrome visible.
 
 import sys
 import re
