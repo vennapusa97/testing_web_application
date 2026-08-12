@@ -89,7 +89,7 @@ STUDIO_CSS = """
 .studio-livebar {
     position: sticky; top: 0; z-index: 999; backdrop-filter: blur(14px);
     background: rgba(15,12,41,0.75); border-bottom: 1px solid var(--hair);
-    padding: 12px 4px; margin: -1.2rem -1rem 18px -1rem;
+    padding: 12px 4px; margin-bottom: 18px; border-radius: 0 0 14px 14px;
 }
 .studio-topbar { display: flex; align-items: center; gap: 10px; padding: 0 16px 10px 16px; }
 .studio-mark {
