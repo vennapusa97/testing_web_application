@@ -153,7 +153,12 @@ THEME_CSS = """
     --red: #ff8080;
 }
 
-* { font-family: 'Inter', sans-serif !important; }
+/* Scoped to text content, NOT a blanket `*` selector -- forcing a font onto
+   every DOM node (including native widget internals like the file uploader's
+   browse button) breaks their fixed-width layouts and causes overlapping
+   text, since those widths were sized for Streamlit's original font metrics. */
+.block-container p, .block-container span, .block-container div,
+.block-container label, .stMarkdown, .stCaption { font-family: 'Inter', sans-serif; }
 
 .stApp {
     background:
@@ -164,7 +169,13 @@ THEME_CSS = """
     color: var(--ink);
 }
 .block-container * { color: var(--ink); }
-h1, h2, h3 { font-family: 'Playfair Display', serif !important; color: #ffffff !important; font-weight: 500 !important; }
+h1, h2, h3,
+.stMarkdown h1, .stMarkdown h2, .stMarkdown h3,
+div[data-testid="stMarkdownContainer"] h1,
+div[data-testid="stMarkdownContainer"] h2,
+div[data-testid="stMarkdownContainer"] h3 {
+    font-family: 'Playfair Display', serif !important; color: #ffffff !important; font-weight: 500 !important;
+}
 p, span, label, div, .stCaption { color: var(--ink-dim); }
 .stCaption p { color: var(--ink-faint) !important; font-size: 12px !important; }
 
@@ -237,6 +248,7 @@ p, span, label, div, .stCaption { color: var(--ink-dim); }
 }
 
 div[data-testid="stFileUploaderDropzone"] { background: rgba(255,255,255,0.04) !important; border: 1px dashed var(--hair-strong) !important; border-radius: 14px !important; }
+div[data-testid="stFileUploaderDropzone"] button { white-space: nowrap !important; width: auto !important; font-family: 'Inter', sans-serif !important; }
 .stTextArea textarea, .stTextInput input {
     background: rgba(0,0,0,0.2) !important; border: 1px solid var(--hair) !important;
     color: var(--ink) !important; border-radius: 12px !important;
