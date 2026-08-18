@@ -791,39 +791,42 @@ def render_results_screen(state: dict):
     rows = total_gold_rows(gold_paths)
     confidence = answer_confidence_label(sql)
 
-    # -- hero card (fully static content, single markdown call) --
-    st.markdown(
-        f"<div class='bento-hero'>"
-        f"<p class='bento-label'>the answer</p>"
-        f"<p class='bento-question'>{html.escape(state.get('business_intent') or 'executive report')}</p>"
-        f"<p class='bento-answer'>{html.escape(direct_answer or 'see full report below.')}</p>"
-        f"<p class='bento-ai-line'># {html.escape(ai_summary)}</p>"
-        f"</div>",
-        unsafe_allow_html=True,
-    )
+    # -- top row: hero (wide) + two stacked stat tiles (narrow) --
+    hero_col, stats_col = st.columns([3, 1])
+    with hero_col:
+        st.markdown(
+            f"<div class='bento-hero' style='height:100%;'>"
+            f"<p class='bento-label'>the answer</p>"
+            f"<p class='bento-question'>{html.escape(state.get('business_intent') or 'executive report')}</p>"
+            f"<p class='bento-answer'>{html.escape(direct_answer or 'see full report below.')}</p>"
+            f"<p class='bento-ai-line'># {html.escape(ai_summary)}</p>"
+            f"</div>",
+            unsafe_allow_html=True,
+        )
+    with stats_col:
+        st.markdown(
+            f"<div class='bento-card'><p class='stat-label'>rows analysed</p><p class='stat-val' style='color:#67e8f9;'>{rows:,}</p></div>",
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            f"<div class='bento-card'><p class='stat-label'>agents run</p><p class='stat-val' style='color:#a3e635;'>{agents_run}</p></div>",
+            unsafe_allow_html=True,
+        )
 
     insights = list_pinned_insights(run_id=run_id, n_results=10)
     if insights:
         chips = "".join(f"<span class='pin-chip'>{html.escape(i['metadata'].get('answer','')[:60])}</span>" for i in insights)
         st.markdown(chips, unsafe_allow_html=True)
 
-    # -- stat tiles --
-    s1, s2, s3 = st.columns(3)
-    for col, label, val, color in [
-        (s1, "rows analysed", f"{rows:,}", "#67e8f9"),
-        (s2, "agents run", str(agents_run), "#a3e635"),
-        (s3, "answer confidence", confidence, "#ffb000"),
-    ]:
-        col.markdown(
-            f"<div class='bento-card'><p class='stat-label'>{label}</p><p class='stat-val' style='color:{color};'>{html.escape(val)}</p></div>",
-            unsafe_allow_html=True,
-        )
-
-    # -- chart + tools row --
-    col_chart, col_tools = st.columns([2, 1])
+    # -- second row: chart (wide) + confidence tile stacked over tools (narrow) --
+    col_chart, col_side = st.columns([2, 1])
     with col_chart:
         render_chart_card(state)
-    with col_tools:
+    with col_side:
+        st.markdown(
+            f"<div class='bento-card'><p class='stat-label'>answer confidence</p><p class='stat-val' style='color:#ffb000;'>{html.escape(confidence)}</p></div>",
+            unsafe_allow_html=True,
+        )
         render_tools_card(state, direct_answer, sql, run_id, gold_paths)
 
     with st.expander("view full generated report (charts, data table, detailed analysis)"):
