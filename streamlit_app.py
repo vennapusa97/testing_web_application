@@ -128,115 +128,136 @@ BOOT_LINES = {
 
 THEME_CSS = """
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&family=Rajdhani:wght@400;500;600&display=swap');
+
 #MainMenu, header[data-testid="stHeader"], footer { visibility: hidden; height: 0; }
 .block-container { padding-top: 1rem; max-width: 1000px; }
 
 :root {
-    --bg: #0a0a0f;
-    --card: #12101c;
-    --card-2: #1a1830;
-    --hair: #2a2740;
-    --hair-strong: #3d3a52;
-    --ink: #e8e6df;
-    --ink-dim: #8a87a0;
-    --ink-faint: #5c5a70;
-    --purple: #a78bfa;
-    --pink: #f472b6;
-    --cyan: #67e8f9;
-    --green: #a3e635;
+    --bg: #04060c;
+    --card: #0a0f1c;
+    --card-2: #0f1830;
+    --hair: rgba(0,246,255,0.18);
+    --hair-strong: rgba(0,246,255,0.4);
+    --ink: #d8f6ff;
+    --ink-dim: #7d92a8;
+    --ink-faint: #4f5f70;
+    --purple: #00f6ff;
+    --pink: #ff2bd6;
+    --cyan: #00f6ff;
+    --green: #39ff9d;
     --amber: #ffb000;
-    --red: #ff6b6b;
+    --red: #ff3d5e;
 }
 
-.stApp { background: var(--bg); color: var(--ink); }
+* { font-family: 'Rajdhani', sans-serif !important; }
+
+.stApp {
+    background:
+        repeating-linear-gradient(0deg, rgba(0,246,255,0.035) 0px, transparent 1px, transparent 38px),
+        repeating-linear-gradient(90deg, rgba(0,246,255,0.035) 0px, transparent 1px, transparent 38px),
+        var(--bg);
+    color: var(--ink);
+}
 .block-container * { color: var(--ink); }
-h1, h2, h3 { color: #ffffff !important; font-weight: 600 !important; }
+h1, h2, h3 { font-family: 'Orbitron', sans-serif !important; color: #ffffff !important; font-weight: 700 !important; letter-spacing: 0.03em; }
 p, span, label, div, .stCaption { color: var(--ink-dim); }
 .stCaption p { color: var(--ink-faint) !important; font-size: 12px !important; }
 
-.bento-card {
-    background: var(--card); border: 1px solid var(--hair); border-radius: 14px;
+/* Corner-bracket "HUD panel" treatment -- applied to every card-like block
+   via ::before/::after pseudo-elements rather than clip-path, so text and
+   nested Streamlit widgets inside are never visually clipped. */
+.bento-card, .bento-hero, .orch-wrap, .top-strip {
+    position: relative;
+    background: var(--card); border: 1px solid var(--hair); border-radius: 2px;
     padding: 14px 16px; margin-bottom: 14px;
+    box-shadow: 0 0 18px rgba(0,246,255,0.05);
 }
-.bento-hero {
-    background: linear-gradient(135deg, #1a1030, var(--bg)); border: 1px solid #3d2a6b;
-    border-radius: 16px; padding: 20px 22px; margin-bottom: 14px;
+.bento-card::before, .bento-hero::before, .orch-wrap::before, .top-strip::before,
+.bento-card::after, .bento-hero::after, .orch-wrap::after, .top-strip::after {
+    content: ""; position: absolute; width: 12px; height: 12px; pointer-events: none;
 }
-.bento-label { font-size: 10.5px; letter-spacing: 0.06em; color: var(--purple); text-transform: uppercase; margin-bottom: 8px; }
+.bento-card::before, .bento-hero::before, .orch-wrap::before, .top-strip::before {
+    top: -1px; left: -1px; border-top: 2px solid var(--cyan); border-left: 2px solid var(--cyan);
+}
+.bento-card::after, .bento-hero::after, .orch-wrap::after, .top-strip::after {
+    bottom: -1px; right: -1px; border-bottom: 2px solid var(--pink); border-right: 2px solid var(--pink);
+}
+
+.bento-hero { background: linear-gradient(135deg, #0a1830, var(--bg)); border-color: var(--hair-strong); }
+.bento-label { font-family: 'Orbitron', sans-serif; font-size: 10px; letter-spacing: 0.1em; color: var(--cyan); text-transform: uppercase; margin-bottom: 8px; }
 .bento-question { font-size: 13px; color: var(--ink-dim); margin-bottom: 4px; }
 .bento-answer { font-size: 26px; font-weight: 600; color: #ffffff; line-height: 1.3; margin: 4px 0; }
 .bento-sub { font-size: 11.5px; color: var(--ink-dim); margin-top: 8px; }
 .bento-ai-line { font-size: 11.5px; color: var(--amber); margin-top: 12px; border-top: 1px dashed var(--hair-strong); padding-top: 10px; }
 
-.stat-label { font-size: 9.5px; color: var(--ink-dim); text-transform: uppercase; margin: 0; }
-.stat-val { font-size: 24px; font-weight: 600; margin: 3px 0 0; }
+.stat-label { font-family: 'Orbitron', sans-serif; font-size: 9px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.06em; margin: 0; }
+.stat-val { font-size: 24px; font-weight: 600; margin: 3px 0 0; text-shadow: 0 0 10px currentColor; }
 
-.pin-chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--hair-strong); border-radius: 999px; padding: 4px 10px; font-size: 10.5px; color: var(--amber); margin: 3px 6px 0 0; }
+.pin-chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--hair-strong); border-radius: 2px; padding: 4px 10px; font-size: 10.5px; color: var(--amber); margin: 3px 6px 0 0; }
 
 .chat-q { color: var(--pink); font-size: 12px; margin: 2px 0; }
 .chat-q::before { content: "you  "; color: var(--ink-faint); }
 .chat-a { color: var(--cyan); font-size: 12px; margin: 2px 0 8px; }
 .chat-a::before { content: "gold  "; color: var(--ink-faint); }
 
-.sql-block { background: #05050a; border: 1px solid var(--hair); border-radius: 8px; padding: 10px 12px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--cyan); white-space: pre-wrap; }
-.lineage-chip { display: inline-block; border: 1px solid var(--hair-strong); border-radius: 6px; padding: 3px 9px; font-size: 10.5px; margin-right: 6px; color: var(--purple); }
-.compare-card { border: 1px solid var(--hair); border-radius: 8px; padding: 10px 12px; font-size: 11.5px; }
+.sql-block { background: #020408; border: 1px solid var(--hair); border-radius: 2px; padding: 10px 12px; font-family: monospace !important; font-size: 11px; color: var(--cyan); white-space: pre-wrap; }
+.lineage-chip { display: inline-block; border: 1px solid var(--hair-strong); border-radius: 2px; padding: 3px 9px; font-size: 10.5px; margin-right: 6px; color: var(--purple); }
+.compare-card { border: 1px solid var(--hair); border-radius: 2px; padding: 10px 12px; font-size: 11.5px; }
 
-.orch-wrap { background: var(--card); border: 1px solid var(--hair); border-radius: 14px; padding: 18px 20px; margin-bottom: 12px; }
 .orch-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 14px; border-bottom: 1px solid var(--hair); margin-bottom: 24px; }
-.orch-title { font-size: 14px; font-weight: 600; color: #fff; }
+.orch-title { font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 700; color: #fff; letter-spacing: 0.04em; }
 .orch-intent { font-size: 11.5px; color: var(--ink-faint); max-width: 420px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .orch-super { text-align: center; margin-bottom: 26px; }
-.orch-super span { border: 1.5px solid var(--amber); border-radius: 10px; padding: 8px 20px; font-size: 12.5px; font-weight: 600; color: var(--amber); }
+.orch-super span { font-family: 'Orbitron', sans-serif; border: 1.5px solid var(--amber); border-radius: 2px; padding: 8px 20px; font-size: 12px; font-weight: 700; color: var(--amber); letter-spacing: 0.05em; box-shadow: 0 0 14px rgba(255,176,0,0.25); }
 .orch-nodes { display: flex; justify-content: space-around; }
 .orch-node { text-align: center; font-size: 11px; }
 .orch-icon { width: 34px; height: 34px; border-radius: 50%; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; }
-.orch-done .orch-icon { background: #16281a; border: 1.5px solid var(--green); color: var(--green); }
+.orch-done .orch-icon { background: #06231a; border: 1.5px solid var(--green); color: var(--green); box-shadow: 0 0 10px rgba(57,255,157,0.3); }
 .orch-done span.orch-name { color: var(--green); }
-.orch-active .orch-icon { background: #332616; border: 1.5px solid var(--amber); color: var(--amber); animation: spinIcon 1s linear infinite; }
+.orch-active .orch-icon { background: #2e2107; border: 1.5px solid var(--amber); color: var(--amber); animation: spinIcon 1s linear infinite; box-shadow: 0 0 14px rgba(255,176,0,0.4); }
 .orch-active span.orch-name { color: var(--amber); font-weight: 600; }
-.orch-queued .orch-icon { background: #17151f; border: 1.5px solid var(--hair-strong); color: var(--ink-faint); }
+.orch-queued .orch-icon { background: #0a0f1c; border: 1.5px solid var(--hair-strong); color: var(--ink-faint); }
 .orch-queued span.orch-name { color: var(--ink-faint); }
 @keyframes spinIcon { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-.orch-feed-label { font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); text-transform: uppercase; margin: 24px 0 10px; border-top: 1px solid var(--hair); padding-top: 16px; }
-.orch-feed-line { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--ink-faint); margin: 6px 0; }
+.orch-feed-label { font-family: 'Orbitron', sans-serif; font-size: 10px; letter-spacing: 0.1em; color: var(--ink-faint); text-transform: uppercase; margin: 24px 0 10px; border-top: 1px solid var(--hair); padding-top: 16px; }
+.orch-feed-line { font-family: monospace !important; font-size: 12px; color: var(--ink-faint); margin: 6px 0; }
 .orch-feed-line.cur { color: var(--amber); font-weight: 500; }
 
-.top-strip { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border: 1px solid var(--hair); border-radius: 10px; margin-bottom: 12px; background: var(--card); }
-.top-brand { font-size: 13px; font-weight: 600; color: #fff; }
-.top-run { font-size: 10.5px; color: var(--ink-faint); }
-.trace-row { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-.trace-step { font-size: 10.5px; padding: 3px 9px; border-radius: 6px; border: 1px solid var(--hair-strong); color: var(--ink-faint); }
-.trace-step.done { color: var(--green); border-color: var(--green); }
-.trace-step.current { color: var(--bg); background: var(--purple); border-color: var(--purple); font-weight: 600; }
+.top-strip { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; }
+.top-brand { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 700; color: #fff; letter-spacing: 0.08em; text-shadow: 0 0 8px rgba(0,246,255,0.5); }
+.top-run { font-size: 10.5px; color: var(--ink-faint); font-family: monospace !important; }
+.trace-row { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.trace-step { font-family: 'Orbitron', sans-serif; font-size: 10px; padding: 4px 10px; border-radius: 2px; border: 1px solid var(--hair-strong); color: var(--ink-faint); letter-spacing: 0.03em; }
+.trace-step.done { color: var(--green); border-color: var(--green); box-shadow: 0 0 8px rgba(57,255,157,0.25); }
+.trace-step.current { color: var(--bg); background: var(--cyan); border-color: var(--cyan); font-weight: 700; box-shadow: 0 0 12px rgba(0,246,255,0.5); }
 
 .stButton button {
     background: transparent !important; border: 1px solid var(--hair-strong) !important;
-    color: var(--ink) !important; border-radius: 8px !important; font-size: 12.5px !important;
+    color: var(--ink) !important; border-radius: 2px !important; font-size: 12.5px !important;
+    font-family: 'Rajdhani', sans-serif !important; font-weight: 600 !important; letter-spacing: 0.03em;
+    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
 }
-.stButton button:hover { border-color: var(--purple) !important; color: #fff !important; }
+.stButton button:hover { border-color: var(--cyan) !important; color: #fff !important; box-shadow: 0 0 14px rgba(0,246,255,0.35) !important; }
 .stButton button[kind="primary"] {
-    background: linear-gradient(135deg, var(--purple), var(--pink)) !important; color: #0a0a0f !important;
-    font-weight: 600 !important; border: none !important;
+    background: linear-gradient(135deg, var(--cyan), var(--pink)) !important; color: #04060c !important;
+    font-weight: 700 !important; border: none !important; box-shadow: 0 0 20px rgba(0,246,255,0.35) !important;
 }
 
-div[data-testid="stFileUploaderDropzone"] { background: var(--card) !important; border: 1px dashed var(--hair-strong) !important; border-radius: 10px !important; }
+div[data-testid="stFileUploaderDropzone"] { background: var(--card) !important; border: 1px dashed var(--hair-strong) !important; border-radius: 2px !important; }
 .stTextArea textarea, .stTextInput input {
-    background: #05050a !important; border: 1px solid var(--hair-strong) !important;
-    color: var(--ink) !important; border-radius: 8px !important;
+    background: #020408 !important; border: 1px solid var(--hair-strong) !important;
+    color: var(--ink) !important; border-radius: 2px !important; font-family: monospace !important;
 }
-.stSelectbox div[data-baseweb="select"] { background: var(--card-2) !important; border-radius: 8px !important; border-color: var(--hair-strong) !important; }
-div[data-testid="stDataFrame"], div[data-testid="stDataEditor"] { border: 1px solid var(--hair-strong) !important; border-radius: 10px; }
-section[data-testid="stSidebar"] { background: #07060c; border-right: 1px solid var(--hair); }
+.stTextArea textarea:focus, .stTextInput input:focus { box-shadow: 0 0 0 1px var(--cyan), 0 0 14px rgba(0,246,255,0.3) !important; }
+.stSelectbox div[data-baseweb="select"] { background: var(--card-2) !important; border-radius: 2px !important; border-color: var(--hair-strong) !important; }
+div[data-testid="stDataFrame"], div[data-testid="stDataEditor"] { border: 1px solid var(--hair-strong) !important; border-radius: 2px; }
+section[data-testid="stSidebar"] { background: #020408; border-right: 1px solid var(--hair); }
 
-/* Native bordered container (st.container(border=True)) is the reliable way
-   to get a real card boundary around live widgets in Streamlit -- unlike an
-   open/close <div> markdown hack, this actually wraps the DOM nodes that
-   follow. Styled here to match the bento-card look used for static cards. */
 div[data-testid="stVerticalBlockBorderWrapper"] {
     background: var(--card) !important; border: 1px solid var(--hair) !important;
-    border-radius: 14px !important; padding: 4px 6px !important;
+    border-radius: 2px !important; padding: 4px 6px !important; box-shadow: 0 0 18px rgba(0,246,255,0.05) !important;
 }
 </style>
 """
