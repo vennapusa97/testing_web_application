@@ -182,7 +182,10 @@ p, span, label, div, .stCaption { color: var(--ink-dim); }
 .lineage-chip { display: inline-block; border: 1px solid var(--hair-strong); border-radius: 6px; padding: 3px 9px; font-size: 10.5px; margin-right: 6px; color: var(--purple); }
 .compare-card { border: 1px solid var(--hair); border-radius: 8px; padding: 10px 12px; font-size: 11.5px; }
 
-.orch-wrap { background: var(--card); border: 1px solid var(--hair); border-radius: 14px; padding: 20px; margin-bottom: 12px; }
+.orch-wrap { background: var(--card); border: 1px solid var(--hair); border-radius: 14px; padding: 18px 20px; margin-bottom: 12px; }
+.orch-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 14px; border-bottom: 1px solid var(--hair); margin-bottom: 24px; }
+.orch-title { font-size: 14px; font-weight: 600; color: #fff; }
+.orch-intent { font-size: 11.5px; color: var(--ink-faint); max-width: 420px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .orch-super { text-align: center; margin-bottom: 26px; }
 .orch-super span { border: 1.5px solid var(--amber); border-radius: 10px; padding: 8px 20px; font-size: 12.5px; font-weight: 600; color: var(--amber); }
 .orch-nodes { display: flex; justify-content: space-around; }
@@ -190,13 +193,15 @@ p, span, label, div, .stCaption { color: var(--ink-dim); }
 .orch-icon { width: 34px; height: 34px; border-radius: 50%; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; }
 .orch-done .orch-icon { background: #16281a; border: 1.5px solid var(--green); color: var(--green); }
 .orch-done span.orch-name { color: var(--green); }
-.orch-active .orch-icon { background: #332616; border: 1.5px solid var(--amber); color: var(--amber); animation: pulseNode 1.2s ease-in-out infinite; }
+.orch-active .orch-icon { background: #332616; border: 1.5px solid var(--amber); color: var(--amber); animation: spinIcon 1s linear infinite; }
 .orch-active span.orch-name { color: var(--amber); font-weight: 600; }
 .orch-queued .orch-icon { background: #17151f; border: 1.5px solid var(--hair-strong); color: var(--ink-faint); }
 .orch-queued span.orch-name { color: var(--ink-faint); }
-@keyframes pulseNode { 0%,100% { box-shadow: 0 0 0 0 rgba(255,176,0,0.4); } 50% { box-shadow: 0 0 0 8px rgba(255,176,0,0); } }
-.orch-feed { margin-top: 20px; border-top: 1px solid var(--hair); padding-top: 12px; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: var(--ink-dim); min-height: 20px; }
-.orch-feed .cur { color: var(--amber); }
+@keyframes spinIcon { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+.orch-feed-label { font-size: 10px; letter-spacing: 0.08em; color: var(--ink-faint); text-transform: uppercase; margin: 24px 0 10px; border-top: 1px solid var(--hair); padding-top: 16px; }
+.orch-feed-line { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--ink-faint); margin: 6px 0; }
+.orch-feed-line.cur { color: var(--amber); font-weight: 500; }
 
 .top-strip { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border: 1px solid var(--hair); border-radius: 10px; margin-bottom: 12px; background: var(--card); }
 .top-brand { font-size: 13px; font-weight: 600; color: #fff; }
@@ -262,28 +267,41 @@ def render_top_strip(current_phase: str):
     )
 
 
-def render_orchestration_html(active_nodes: list, done_nodes: set, current_line: str) -> str:
+PHASE_NUM = {"phase1": 1, "phase2": 2, "phase3": 3, "phase4": 4}
+
+
+def render_orchestration_html(phase_key: str, business_intent: str, active_nodes: list, done_nodes: set, feed_window: list) -> str:
     node_cells = []
     for key, label in ORCH_NODES:
         if key in done_nodes:
             cls, icon = "orch-done", "&#10003;"
         elif key in active_nodes:
-            cls, icon = "orch-active", "&#9679;"
+            cls, icon = "orch-active", "&#8635;"
         else:
             cls, icon = "orch-queued", "&#9675;"
         node_cells.append(
             f"<div class='orch-node {cls}'><div class='orch-icon'>{icon}</div><span class='orch-name'>{label}</span></div>"
         )
+    feed_lines = []
+    for idx, line in enumerate(feed_window):
+        cur_cls = "cur" if idx == len(feed_window) - 1 else ""
+        feed_lines.append(f"<div class='orch-feed-line {cur_cls}'>&gt; {html.escape(line)}</div>")
+
     return f"""
     <div class='orch-wrap'>
+        <div class='orch-header'>
+            <span class='orch-title'>supervisor orchestration &middot; phase {PHASE_NUM.get(phase_key, 1)} of 4</span>
+            <span class='orch-intent'>business intent: &quot;{html.escape(business_intent)}&quot;</span>
+        </div>
         <div class='orch-super'><span>supervisor agent</span></div>
         <div class='orch-nodes'>{''.join(node_cells)}</div>
-        <div class='orch-feed'>&gt; <span class='cur'>{html.escape(current_line)}</span></div>
+        <div class='orch-feed-label'>live reasoning</div>
+        {''.join(feed_lines)}
     </div>
     """
 
 
-def run_with_boot_log(fn, args, phase_key: str):
+def run_with_boot_log(fn, args, phase_key: str, business_intent: str):
     """Runs a blocking orchestrator call on a worker thread while the main
     thread polls it, rendering the live orchestration stage each tick. Real
     thread + real polling loop -- cycles for exactly as long as the call
@@ -304,8 +322,9 @@ def run_with_boot_log(fn, args, phase_key: str):
     active = PHASE_ACTIVE_NODES[phase_key]
     lines = BOOT_LINES[phase_key]
     while t.is_alive():
+        window = [lines[(i - k) % len(lines)] for k in (2, 1, 0) if i - k >= 0] or [lines[0]]
         placeholder.markdown(
-            render_orchestration_html(active, st.session_state.agent_done, lines[i % len(lines)]),
+            render_orchestration_html(phase_key, business_intent, active, st.session_state.agent_done, window),
             unsafe_allow_html=True,
         )
         time.sleep(0.65)
@@ -867,7 +886,7 @@ if st.session_state.phase == "upload":
                 f.write(uf.getbuffer())
             saved_paths.append(save_path)
 
-        result = run_with_boot_log(run_until_bronze_sttm, (saved_paths, business_intent), "phase1")
+        result = run_with_boot_log(run_until_bronze_sttm, (saved_paths, business_intent), "phase1", business_intent)
         st.session_state.pipeline_state = result
         st.session_state.current_run_id = result.get("run_id", "")
         if result.get("error"):
@@ -886,7 +905,7 @@ elif st.session_state.phase == "bronze_sttm":
         selected_df = _extract_selected_rows(edited_df)
         if st.button("approve & continue", type="primary", disabled=selected_df.empty):
             selected_df.to_csv(sttm_path, index=False)
-            result = run_with_boot_log(run_bronze_to_silver_sttm, (state,), "phase2")
+            result = run_with_boot_log(run_bronze_to_silver_sttm, (state,), "phase2", state.get("business_intent", ""))
             st.session_state.pipeline_state = result
             if result.get("error"):
                 st.error(f"error: {result['error']}")
@@ -906,7 +925,7 @@ elif st.session_state.phase == "silver_sttm":
         selected_df = _extract_selected_rows(edited_df)
         if st.button("approve & continue", type="primary", disabled=selected_df.empty):
             selected_df.to_csv(sttm_path, index=False)
-            result = run_with_boot_log(run_silver_to_gold_sttm, (state,), "phase3")
+            result = run_with_boot_log(run_silver_to_gold_sttm, (state,), "phase3", state.get("business_intent", ""))
             st.session_state.pipeline_state = result
             if result.get("error"):
                 st.error(f"error: {result['error']}")
@@ -926,7 +945,7 @@ elif st.session_state.phase == "gold_sttm":
         selected_df = _extract_selected_rows(edited_df)
         if st.button("approve & execute", type="primary", disabled=selected_df.empty):
             selected_df.to_csv(sttm_path, index=False)
-            result = run_with_boot_log(run_gold_and_report, (state,), "phase4")
+            result = run_with_boot_log(run_gold_and_report, (state,), "phase4", state.get("business_intent", ""))
             st.session_state.pipeline_state = result
             if result.get("error"):
                 st.error(f"error: {result['error']}")
