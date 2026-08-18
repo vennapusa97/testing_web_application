@@ -128,136 +128,128 @@ BOOT_LINES = {
 
 THEME_CSS = """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&family=Rajdhani:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@400;500;600&display=swap');
 
 #MainMenu, header[data-testid="stHeader"], footer { visibility: hidden; height: 0; }
 .block-container { padding-top: 1rem; max-width: 1000px; }
 
 :root {
-    --bg: #04060c;
-    --card: #0a0f1c;
-    --card-2: #0f1830;
-    --hair: rgba(0,246,255,0.18);
-    --hair-strong: rgba(0,246,255,0.4);
-    --ink: #d8f6ff;
-    --ink-dim: #7d92a8;
-    --ink-faint: #4f5f70;
-    --purple: #00f6ff;
-    --pink: #ff2bd6;
-    --cyan: #00f6ff;
-    --green: #39ff9d;
-    --amber: #ffb000;
-    --red: #ff3d5e;
+    --bg-1: #0f1b3d;
+    --bg-2: #1b2d5c;
+    --bg-3: #2d4a6b;
+    --bg-4: #1a3a4a;
+    --card: rgba(255,255,255,0.07);
+    --card-2: rgba(255,255,255,0.05);
+    --hair: rgba(255,255,255,0.14);
+    --hair-strong: rgba(255,255,255,0.22);
+    --ink: rgba(255,255,255,0.92);
+    --ink-dim: rgba(255,255,255,0.6);
+    --ink-faint: rgba(255,255,255,0.4);
+    --purple: #8fb0ff;
+    --pink: #d4af78;
+    --cyan: #cfe0ff;
+    --green: #8fd9a8;
+    --amber: #e8c99a;
+    --red: #ff8080;
 }
 
-* { font-family: 'Rajdhani', sans-serif !important; }
+* { font-family: 'Inter', sans-serif !important; }
 
 .stApp {
     background:
-        repeating-linear-gradient(0deg, rgba(0,246,255,0.035) 0px, transparent 1px, transparent 38px),
-        repeating-linear-gradient(90deg, rgba(0,246,255,0.035) 0px, transparent 1px, transparent 38px),
-        var(--bg);
+        radial-gradient(circle at 15% -10%, rgba(120,150,255,0.16), transparent 45%),
+        radial-gradient(circle at 90% 100%, rgba(212,175,120,0.14), transparent 45%),
+        linear-gradient(160deg, var(--bg-1) 0%, var(--bg-2) 35%, var(--bg-3) 65%, var(--bg-4) 100%);
+    background-attachment: fixed;
     color: var(--ink);
 }
 .block-container * { color: var(--ink); }
-h1, h2, h3 { font-family: 'Orbitron', sans-serif !important; color: #ffffff !important; font-weight: 700 !important; letter-spacing: 0.03em; }
+h1, h2, h3 { font-family: 'Playfair Display', serif !important; color: #ffffff !important; font-weight: 500 !important; }
 p, span, label, div, .stCaption { color: var(--ink-dim); }
 .stCaption p { color: var(--ink-faint) !important; font-size: 12px !important; }
 
-/* Corner-bracket "HUD panel" treatment -- applied to every card-like block
-   via ::before/::after pseudo-elements rather than clip-path, so text and
-   nested Streamlit widgets inside are never visually clipped. */
 .bento-card, .bento-hero, .orch-wrap, .top-strip {
     position: relative;
-    background: var(--card); border: 1px solid var(--hair); border-radius: 2px;
-    padding: 14px 16px; margin-bottom: 14px;
-    box-shadow: 0 0 18px rgba(0,246,255,0.05);
+    background: var(--card); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--hair); border-radius: 18px;
+    padding: 16px 20px; margin-bottom: 14px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 12px 32px rgba(0,0,0,0.18);
 }
-.bento-card::before, .bento-hero::before, .orch-wrap::before, .top-strip::before,
-.bento-card::after, .bento-hero::after, .orch-wrap::after, .top-strip::after {
-    content: ""; position: absolute; width: 12px; height: 12px; pointer-events: none;
-}
-.bento-card::before, .bento-hero::before, .orch-wrap::before, .top-strip::before {
-    top: -1px; left: -1px; border-top: 2px solid var(--cyan); border-left: 2px solid var(--cyan);
-}
-.bento-card::after, .bento-hero::after, .orch-wrap::after, .top-strip::after {
-    bottom: -1px; right: -1px; border-bottom: 2px solid var(--pink); border-right: 2px solid var(--pink);
-}
-
-.bento-hero { background: linear-gradient(135deg, #0a1830, var(--bg)); border-color: var(--hair-strong); }
-.bento-label { font-family: 'Orbitron', sans-serif; font-size: 10px; letter-spacing: 0.1em; color: var(--cyan); text-transform: uppercase; margin-bottom: 8px; }
+.bento-hero { padding: 26px 28px; }
+.bento-label { font-size: 10px; letter-spacing: 0.1em; color: var(--pink); text-transform: uppercase; margin-bottom: 8px; }
 .bento-question { font-size: 13px; color: var(--ink-dim); margin-bottom: 4px; }
-.bento-answer { font-size: 26px; font-weight: 600; color: #ffffff; line-height: 1.3; margin: 4px 0; }
+.bento-answer { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 500; color: #ffffff; line-height: 1.35; margin: 6px 0; }
 .bento-sub { font-size: 11.5px; color: var(--ink-dim); margin-top: 8px; }
-.bento-ai-line { font-size: 11.5px; color: var(--amber); margin-top: 12px; border-top: 1px dashed var(--hair-strong); padding-top: 10px; }
+.bento-ai-line { font-size: 11.5px; color: var(--amber); margin-top: 12px; border-top: 1px dashed var(--hair); padding-top: 10px; }
 
-.stat-label { font-family: 'Orbitron', sans-serif; font-size: 9px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.06em; margin: 0; }
-.stat-val { font-size: 24px; font-weight: 600; margin: 3px 0 0; text-shadow: 0 0 10px currentColor; }
+.stat-label { font-size: 9.5px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.06em; margin: 0; }
+.stat-val { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 500; margin: 4px 0 0; color: #fff; }
 
-.pin-chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--hair-strong); border-radius: 2px; padding: 4px 10px; font-size: 10.5px; color: var(--amber); margin: 3px 6px 0 0; }
+.pin-chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--hair-strong); border-radius: 999px; padding: 4px 10px; font-size: 10.5px; color: var(--amber); margin: 3px 6px 0 0; background: rgba(255,255,255,0.05); }
 
 .chat-q { color: var(--pink); font-size: 12px; margin: 2px 0; }
 .chat-q::before { content: "you  "; color: var(--ink-faint); }
 .chat-a { color: var(--cyan); font-size: 12px; margin: 2px 0 8px; }
 .chat-a::before { content: "gold  "; color: var(--ink-faint); }
 
-.sql-block { background: #020408; border: 1px solid var(--hair); border-radius: 2px; padding: 10px 12px; font-family: monospace !important; font-size: 11px; color: var(--cyan); white-space: pre-wrap; }
-.lineage-chip { display: inline-block; border: 1px solid var(--hair-strong); border-radius: 2px; padding: 3px 9px; font-size: 10.5px; margin-right: 6px; color: var(--purple); }
-.compare-card { border: 1px solid var(--hair); border-radius: 2px; padding: 10px 12px; font-size: 11.5px; }
+.sql-block { background: rgba(0,0,0,0.25); border: 1px solid var(--hair); border-radius: 10px; padding: 10px 12px; font-family: monospace !important; font-size: 11px; color: var(--cyan); white-space: pre-wrap; }
+.lineage-chip { display: inline-block; border: 1px solid var(--hair-strong); border-radius: 8px; padding: 3px 9px; font-size: 10.5px; margin-right: 6px; color: var(--purple); background: rgba(255,255,255,0.05); }
+.compare-card { border: 1px solid var(--hair); border-radius: 10px; padding: 10px 12px; font-size: 11.5px; background: rgba(255,255,255,0.04); }
 
 .orch-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 14px; border-bottom: 1px solid var(--hair); margin-bottom: 24px; }
-.orch-title { font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 700; color: #fff; letter-spacing: 0.04em; }
+.orch-title { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 500; color: #fff; }
 .orch-intent { font-size: 11.5px; color: var(--ink-faint); max-width: 420px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .orch-super { text-align: center; margin-bottom: 26px; }
-.orch-super span { font-family: 'Orbitron', sans-serif; border: 1.5px solid var(--amber); border-radius: 2px; padding: 8px 20px; font-size: 12px; font-weight: 700; color: var(--amber); letter-spacing: 0.05em; box-shadow: 0 0 14px rgba(255,176,0,0.25); }
+.orch-super span { border: 1px solid var(--amber); border-radius: 999px; padding: 8px 22px; font-size: 12.5px; font-weight: 600; color: var(--amber); background: rgba(255,255,255,0.05); }
 .orch-nodes { display: flex; justify-content: space-around; }
 .orch-node { text-align: center; font-size: 11px; }
 .orch-icon { width: 34px; height: 34px; border-radius: 50%; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; }
-.orch-done .orch-icon { background: #06231a; border: 1.5px solid var(--green); color: var(--green); box-shadow: 0 0 10px rgba(57,255,157,0.3); }
+.orch-done .orch-icon { background: rgba(143,217,168,0.15); border: 1.5px solid var(--green); color: var(--green); }
 .orch-done span.orch-name { color: var(--green); }
-.orch-active .orch-icon { background: #2e2107; border: 1.5px solid var(--amber); color: var(--amber); animation: spinIcon 1s linear infinite; box-shadow: 0 0 14px rgba(255,176,0,0.4); }
+.orch-active .orch-icon { background: rgba(232,201,154,0.18); border: 1.5px solid var(--amber); color: var(--amber); animation: pulseGlass 1.3s ease-in-out infinite; }
 .orch-active span.orch-name { color: var(--amber); font-weight: 600; }
-.orch-queued .orch-icon { background: #0a0f1c; border: 1.5px solid var(--hair-strong); color: var(--ink-faint); }
+.orch-queued .orch-icon { background: rgba(255,255,255,0.04); border: 1.5px solid var(--hair-strong); color: var(--ink-faint); }
 .orch-queued span.orch-name { color: var(--ink-faint); }
-@keyframes spinIcon { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes pulseGlass { 0%,100% { box-shadow: 0 0 0 0 rgba(232,201,154,0.35); } 50% { box-shadow: 0 0 0 9px rgba(232,201,154,0); } }
 
-.orch-feed-label { font-family: 'Orbitron', sans-serif; font-size: 10px; letter-spacing: 0.1em; color: var(--ink-faint); text-transform: uppercase; margin: 24px 0 10px; border-top: 1px solid var(--hair); padding-top: 16px; }
+.orch-feed-label { font-size: 10px; letter-spacing: 0.1em; color: var(--ink-faint); text-transform: uppercase; margin: 24px 0 10px; border-top: 1px solid var(--hair); padding-top: 16px; }
 .orch-feed-line { font-family: monospace !important; font-size: 12px; color: var(--ink-faint); margin: 6px 0; }
 .orch-feed-line.cur { color: var(--amber); font-weight: 500; }
 
-.top-strip { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; }
-.top-brand { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 700; color: #fff; letter-spacing: 0.08em; text-shadow: 0 0 8px rgba(0,246,255,0.5); }
+.top-strip { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-radius: 22px; }
+.top-brand { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 500; color: #fff; }
 .top-run { font-size: 10.5px; color: var(--ink-faint); font-family: monospace !important; }
-.trace-row { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
-.trace-step { font-family: 'Orbitron', sans-serif; font-size: 10px; padding: 4px 10px; border-radius: 2px; border: 1px solid var(--hair-strong); color: var(--ink-faint); letter-spacing: 0.03em; }
-.trace-step.done { color: var(--green); border-color: var(--green); box-shadow: 0 0 8px rgba(57,255,157,0.25); }
-.trace-step.current { color: var(--bg); background: var(--cyan); border-color: var(--cyan); font-weight: 700; box-shadow: 0 0 12px rgba(0,246,255,0.5); }
+.trace-row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.trace-step { font-size: 10px; padding: 6px 13px; border-radius: 999px; background: rgba(255,255,255,0.05); color: var(--ink-faint); }
+.trace-step.done { color: var(--green); background: rgba(143,217,168,0.12); }
+.trace-step.current { color: #1a1408; background: var(--amber); font-weight: 600; }
 
 .stButton button {
-    background: transparent !important; border: 1px solid var(--hair-strong) !important;
-    color: var(--ink) !important; border-radius: 2px !important; font-size: 12.5px !important;
-    font-family: 'Rajdhani', sans-serif !important; font-weight: 600 !important; letter-spacing: 0.03em;
-    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+    background: rgba(255,255,255,0.06) !important; backdrop-filter: blur(12px) !important;
+    border: 1px solid var(--hair-strong) !important;
+    color: var(--ink) !important; border-radius: 12px !important; font-size: 12.5px !important;
+    font-weight: 500 !important;
 }
-.stButton button:hover { border-color: var(--cyan) !important; color: #fff !important; box-shadow: 0 0 14px rgba(0,246,255,0.35) !important; }
+.stButton button:hover { border-color: var(--amber) !important; color: #fff !important; }
 .stButton button[kind="primary"] {
-    background: linear-gradient(135deg, var(--cyan), var(--pink)) !important; color: #04060c !important;
-    font-weight: 700 !important; border: none !important; box-shadow: 0 0 20px rgba(0,246,255,0.35) !important;
+    background: linear-gradient(135deg, var(--pink), var(--amber)) !important; color: #1a1408 !important;
+    font-weight: 600 !important; border: none !important; box-shadow: 0 8px 22px rgba(212,175,120,0.3) !important;
 }
 
-div[data-testid="stFileUploaderDropzone"] { background: var(--card) !important; border: 1px dashed var(--hair-strong) !important; border-radius: 2px !important; }
+div[data-testid="stFileUploaderDropzone"] { background: rgba(255,255,255,0.04) !important; border: 1px dashed var(--hair-strong) !important; border-radius: 14px !important; }
 .stTextArea textarea, .stTextInput input {
-    background: #020408 !important; border: 1px solid var(--hair-strong) !important;
-    color: var(--ink) !important; border-radius: 2px !important; font-family: monospace !important;
+    background: rgba(0,0,0,0.2) !important; border: 1px solid var(--hair) !important;
+    color: var(--ink) !important; border-radius: 12px !important;
 }
-.stTextArea textarea:focus, .stTextInput input:focus { box-shadow: 0 0 0 1px var(--cyan), 0 0 14px rgba(0,246,255,0.3) !important; }
-.stSelectbox div[data-baseweb="select"] { background: var(--card-2) !important; border-radius: 2px !important; border-color: var(--hair-strong) !important; }
-div[data-testid="stDataFrame"], div[data-testid="stDataEditor"] { border: 1px solid var(--hair-strong) !important; border-radius: 2px; }
-section[data-testid="stSidebar"] { background: #020408; border-right: 1px solid var(--hair); }
+.stTextArea textarea:focus, .stTextInput input:focus { box-shadow: 0 0 0 1px var(--amber) !important; }
+.stSelectbox div[data-baseweb="select"] { background: rgba(255,255,255,0.06) !important; border-radius: 10px !important; border-color: var(--hair-strong) !important; }
+div[data-testid="stDataFrame"], div[data-testid="stDataEditor"] { border: 1px solid var(--hair-strong) !important; border-radius: 14px; }
+section[data-testid="stSidebar"] { background: rgba(0,0,0,0.15); border-right: 1px solid var(--hair); backdrop-filter: blur(20px); }
 
 div[data-testid="stVerticalBlockBorderWrapper"] {
-    background: var(--card) !important; border: 1px solid var(--hair) !important;
-    border-radius: 2px !important; padding: 4px 6px !important; box-shadow: 0 0 18px rgba(0,246,255,0.05) !important;
+    background: var(--card) !important; backdrop-filter: blur(24px) !important; border: 1px solid var(--hair) !important;
+    border-radius: 18px !important; padding: 6px 8px !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 12px 32px rgba(0,0,0,0.18) !important;
 }
 </style>
 """
@@ -606,11 +598,11 @@ def render_chart_card(state: dict):
         return
 
     with st.container(border=True):
-        st.markdown("<p class='bento-label'>findings</p>", unsafe_allow_html=True)
+        st.markdown("<p class='bento-label'>findings &middot; choose your chart</p>", unsafe_allow_html=True)
 
         table_names = [Path(p).stem for p in gold_paths]
         c0, c1, c2, c3 = st.columns(4)
-        chosen_table = c0.selectbox("table", table_names, key="livechart_table", label_visibility="collapsed")
+        chosen_table = c0.selectbox("Table", table_names, key="livechart_table")
         df = pd.read_parquet(gold_paths[table_names.index(chosen_table)])
 
         numeric_cols = [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c])]
@@ -618,10 +610,10 @@ def render_chart_card(state: dict):
         if not all_cols:
             return
 
-        chart_type = c1.selectbox("chart", ["Bar", "Line", "Area", "Scatter", "Pie"], key="livechart_type", label_visibility="collapsed")
-        x_col = c2.selectbox("x axis", all_cols, key="livechart_x", label_visibility="collapsed")
+        chart_type = c1.selectbox("Chart type", ["Bar", "Line", "Area", "Scatter", "Pie"], key="livechart_type")
+        x_col = c2.selectbox("X axis", all_cols, key="livechart_x")
         y_options = numeric_cols if numeric_cols else all_cols
-        y_col = c3.selectbox("y axis", y_options, key="livechart_y", label_visibility="collapsed")
+        y_col = c3.selectbox("Y axis", y_options, key="livechart_y")
 
         try:
             import plotly.express as px
@@ -630,23 +622,23 @@ def render_chart_card(state: dict):
             if chart_type == "Bar":
                 vals = pd.to_numeric(df[y_col], errors="coerce").fillna(0).tolist()
                 max_idx = vals.index(max(vals)) if vals else -1
-                colors = ["#f472b6" if i == max_idx else "#3d3a52" for i in range(len(vals))]
+                colors = ["#e8c99a" if i == max_idx else "rgba(255,255,255,0.18)" for i in range(len(vals))]
                 fig = go.Figure(go.Bar(x=df[x_col], y=df[y_col], marker_color=colors))
             elif chart_type == "Line":
-                fig = px.line(df, x=x_col, y=y_col, markers=True, color_discrete_sequence=["#67e8f9"])
+                fig = px.line(df, x=x_col, y=y_col, markers=True, color_discrete_sequence=["#cfe0ff"])
             elif chart_type == "Area":
-                fig = px.area(df, x=x_col, y=y_col, color_discrete_sequence=["#a78bfa"])
+                fig = px.area(df, x=x_col, y=y_col, color_discrete_sequence=["#8fb0ff"])
             elif chart_type == "Scatter":
-                fig = px.scatter(df, x=x_col, y=y_col, color_discrete_sequence=["#a3e635"])
+                fig = px.scatter(df, x=x_col, y=y_col, color_discrete_sequence=["#8fd9a8"])
             else:
-                fig = px.pie(df, names=x_col, values=y_col, color_discrete_sequence=["#a78bfa", "#f472b6", "#67e8f9", "#a3e635", "#ffb000"])
+                fig = px.pie(df, names=x_col, values=y_col, color_discrete_sequence=["#d4af78", "#8fb0ff", "#cfe0ff", "#8fd9a8", "#e8c99a"])
 
             fig.update_layout(
                 plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
-                font_color="#e8e6df", margin=dict(l=10, r=10, t=20, b=10), height=340,
+                font_color="rgba(255,255,255,0.85)", margin=dict(l=10, r=10, t=20, b=10), height=340,
             )
-            fig.update_xaxes(gridcolor="rgba(138,135,160,0.15)")
-            fig.update_yaxes(gridcolor="rgba(138,135,160,0.15)")
+            fig.update_xaxes(gridcolor="rgba(255,255,255,0.1)")
+            fig.update_yaxes(gridcolor="rgba(255,255,255,0.1)")
             st.plotly_chart(fig, use_container_width=True, key="livechart_plot")
         except Exception as e:
             st.warning(f"couldn't render that combination: {e}")
