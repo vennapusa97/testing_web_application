@@ -224,6 +224,15 @@ div[data-testid="stFileUploaderDropzone"] { background: var(--card) !important; 
 .stSelectbox div[data-baseweb="select"] { background: var(--card-2) !important; border-radius: 8px !important; border-color: var(--hair-strong) !important; }
 div[data-testid="stDataFrame"], div[data-testid="stDataEditor"] { border: 1px solid var(--hair-strong) !important; border-radius: 10px; }
 section[data-testid="stSidebar"] { background: #07060c; border-right: 1px solid var(--hair); }
+
+/* Native bordered container (st.container(border=True)) is the reliable way
+   to get a real card boundary around live widgets in Streamlit -- unlike an
+   open/close <div> markdown hack, this actually wraps the DOM nodes that
+   follow. Styled here to match the bento-card look used for static cards. */
+div[data-testid="stVerticalBlockBorderWrapper"] {
+    background: var(--card) !important; border: 1px solid var(--hair) !important;
+    border-radius: 14px !important; padding: 4px 6px !important;
+}
 </style>
 """
 
@@ -556,66 +565,61 @@ def render_chart_card(state: dict):
     if not gold_paths:
         return
 
-    st.markdown("<div class='bento-card'>", unsafe_allow_html=True)
-    st.markdown("<p class='bento-label'>findings</p>", unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown("<p class='bento-label'>findings</p>", unsafe_allow_html=True)
 
-    table_names = [Path(p).stem for p in gold_paths]
-    c0, c1, c2, c3 = st.columns(4)
-    chosen_table = c0.selectbox("table", table_names, key="livechart_table", label_visibility="collapsed")
-    df = pd.read_parquet(gold_paths[table_names.index(chosen_table)])
+        table_names = [Path(p).stem for p in gold_paths]
+        c0, c1, c2, c3 = st.columns(4)
+        chosen_table = c0.selectbox("table", table_names, key="livechart_table", label_visibility="collapsed")
+        df = pd.read_parquet(gold_paths[table_names.index(chosen_table)])
 
-    numeric_cols = [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c])]
-    all_cols = list(df.columns)
-    if not all_cols:
-        st.markdown("</div>", unsafe_allow_html=True)
-        return
+        numeric_cols = [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c])]
+        all_cols = list(df.columns)
+        if not all_cols:
+            return
 
-    chart_type = c1.selectbox("chart", ["Bar", "Line", "Area", "Scatter", "Pie"], key="livechart_type", label_visibility="collapsed")
-    x_col = c2.selectbox("x axis", all_cols, key="livechart_x", label_visibility="collapsed")
-    y_options = numeric_cols if numeric_cols else all_cols
-    y_col = c3.selectbox("y axis", y_options, key="livechart_y", label_visibility="collapsed")
+        chart_type = c1.selectbox("chart", ["Bar", "Line", "Area", "Scatter", "Pie"], key="livechart_type", label_visibility="collapsed")
+        x_col = c2.selectbox("x axis", all_cols, key="livechart_x", label_visibility="collapsed")
+        y_options = numeric_cols if numeric_cols else all_cols
+        y_col = c3.selectbox("y axis", y_options, key="livechart_y", label_visibility="collapsed")
 
-    try:
-        import plotly.express as px
-        import plotly.graph_objects as go
+        try:
+            import plotly.express as px
+            import plotly.graph_objects as go
 
-        if chart_type == "Bar":
-            vals = pd.to_numeric(df[y_col], errors="coerce").fillna(0).tolist()
-            max_idx = vals.index(max(vals)) if vals else -1
-            colors = ["#f472b6" if i == max_idx else "#3d3a52" for i in range(len(vals))]
-            fig = go.Figure(go.Bar(x=df[x_col], y=df[y_col], marker_color=colors))
-        elif chart_type == "Line":
-            fig = px.line(df, x=x_col, y=y_col, markers=True, color_discrete_sequence=["#67e8f9"])
-        elif chart_type == "Area":
-            fig = px.area(df, x=x_col, y=y_col, color_discrete_sequence=["#a78bfa"])
-        elif chart_type == "Scatter":
-            fig = px.scatter(df, x=x_col, y=y_col, color_discrete_sequence=["#a3e635"])
-        else:
-            fig = px.pie(df, names=x_col, values=y_col, color_discrete_sequence=["#a78bfa", "#f472b6", "#67e8f9", "#a3e635", "#ffb000"])
+            if chart_type == "Bar":
+                vals = pd.to_numeric(df[y_col], errors="coerce").fillna(0).tolist()
+                max_idx = vals.index(max(vals)) if vals else -1
+                colors = ["#f472b6" if i == max_idx else "#3d3a52" for i in range(len(vals))]
+                fig = go.Figure(go.Bar(x=df[x_col], y=df[y_col], marker_color=colors))
+            elif chart_type == "Line":
+                fig = px.line(df, x=x_col, y=y_col, markers=True, color_discrete_sequence=["#67e8f9"])
+            elif chart_type == "Area":
+                fig = px.area(df, x=x_col, y=y_col, color_discrete_sequence=["#a78bfa"])
+            elif chart_type == "Scatter":
+                fig = px.scatter(df, x=x_col, y=y_col, color_discrete_sequence=["#a3e635"])
+            else:
+                fig = px.pie(df, names=x_col, values=y_col, color_discrete_sequence=["#a78bfa", "#f472b6", "#67e8f9", "#a3e635", "#ffb000"])
 
-        fig.update_layout(
-            plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
-            font_color="#e8e6df", margin=dict(l=10, r=10, t=20, b=10), height=340,
-        )
-        fig.update_xaxes(gridcolor="rgba(138,135,160,0.15)")
-        fig.update_yaxes(gridcolor="rgba(138,135,160,0.15)")
-        st.plotly_chart(fig, use_container_width=True, key="livechart_plot")
-    except Exception as e:
-        st.warning(f"couldn't render that combination: {e}")
-
-    st.markdown("</div>", unsafe_allow_html=True)
+            fig.update_layout(
+                plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
+                font_color="#e8e6df", margin=dict(l=10, r=10, t=20, b=10), height=340,
+            )
+            fig.update_xaxes(gridcolor="rgba(138,135,160,0.15)")
+            fig.update_yaxes(gridcolor="rgba(138,135,160,0.15)")
+            st.plotly_chart(fig, use_container_width=True, key="livechart_plot")
+        except Exception as e:
+            st.warning(f"couldn't render that combination: {e}")
 
 
 def render_tools_card(state: dict, direct_answer: str, sql: str, run_id: str, gold_paths: list):
-    st.markdown("<div class='bento-card'>", unsafe_allow_html=True)
-    st.markdown("<p class='bento-label'>tools</p>", unsafe_allow_html=True)
-
-    labels = ["lineage", "sql", "pin", "compare", "fork", "export"]
-    cols = st.columns(3)
-    for i, label in enumerate(labels):
-        if cols[i % 3].button(label, key=f"tool_{label}", use_container_width=True):
-            st.session_state.open_drawer = None if st.session_state.open_drawer == label else label
-    st.markdown("</div>", unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown("<p class='bento-label'>tools</p>", unsafe_allow_html=True)
+        labels = ["lineage", "sql", "pin", "compare", "fork", "export"]
+        cols = st.columns(3)
+        for i, label in enumerate(labels):
+            if cols[i % 3].button(label, key=f"tool_{label}", use_container_width=True):
+                st.session_state.open_drawer = None if st.session_state.open_drawer == label else label
 
     drawer = st.session_state.open_drawer
     if drawer == "lineage":
@@ -705,41 +709,39 @@ def render_chat_card(state: dict):
     if "typed_ids" not in st.session_state:
         st.session_state.typed_ids = set()
 
-    st.markdown("<div class='bento-card'>", unsafe_allow_html=True)
-    st.markdown("<p class='bento-label'>ask the gold tables</p>", unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown("<p class='bento-label'>ask the gold tables</p>", unsafe_allow_html=True)
 
-    for i, turn in enumerate(st.session_state.chat_history):
-        st.markdown(f"<div class='chat-q'>{html.escape(turn['question'])}</div>", unsafe_allow_html=True)
-        answer_text = turn['answer'] or turn.get('error') or 'no answer.'
-        render_typewriter(answer_text, msg_id=f"chat_{run_id}_{i}")
+        for i, turn in enumerate(st.session_state.chat_history):
+            st.markdown(f"<div class='chat-q'>{html.escape(turn['question'])}</div>", unsafe_allow_html=True)
+            answer_text = turn['answer'] or turn.get('error') or 'no answer.'
+            render_typewriter(answer_text, msg_id=f"chat_{run_id}_{i}")
 
-        cols = st.columns([1, 1, 1, 6])
-        show_key = f"chat_sql_{i}"
-        if cols[0].button("sql", key=f"chat_sql_btn_{i}"):
-            st.session_state[show_key] = not st.session_state.get(show_key, False)
-        if cols[1].button("+1", key=f"chat_up_{i}"):
-            log_feedback(run_id, turn["question"], "up")
-            st.toast("feedback logged")
-        if cols[2].button("pin", key=f"chat_pin_{i}"):
-            store_insight(run_id, turn["question"], turn["answer"], turn.get("sql", ""))
-            st.toast("pinned")
-        if st.session_state.get(show_key):
-            st.markdown(f"<div class='sql-block'>{html.escape(turn.get('sql') or 'no sql captured.')}</div>", unsafe_allow_html=True)
+            cols = st.columns([1, 1, 1, 6])
+            show_key = f"chat_sql_{i}"
+            if cols[0].button("sql", key=f"chat_sql_btn_{i}"):
+                st.session_state[show_key] = not st.session_state.get(show_key, False)
+            if cols[1].button("+1", key=f"chat_up_{i}"):
+                log_feedback(run_id, turn["question"], "up")
+                st.toast("feedback logged")
+            if cols[2].button("pin", key=f"chat_pin_{i}"):
+                store_insight(run_id, turn["question"], turn["answer"], turn.get("sql", ""))
+                st.toast("pinned")
+            if st.session_state.get(show_key):
+                st.markdown(f"<div class='sql-block'>{html.escape(turn.get('sql') or 'no sql captured.')}</div>", unsafe_allow_html=True)
 
-        if turn.get("follow_ups"):
-            fcols = st.columns(len(turn["follow_ups"]))
-            for ci, fu in enumerate(turn["follow_ups"]):
-                if fcols[ci].button(fu, key=f"chat_chip_{i}_{ci}", use_container_width=True):
-                    _ask_chat(fu)
-                    st.rerun()
+            if turn.get("follow_ups"):
+                fcols = st.columns(len(turn["follow_ups"]))
+                for ci, fu in enumerate(turn["follow_ups"]):
+                    if fcols[ci].button(fu, key=f"chat_chip_{i}_{ci}", use_container_width=True):
+                        _ask_chat(fu)
+                        st.rerun()
 
-    c1, c2 = st.columns([5, 1])
-    q = c1.text_input("query", key="chat_q_input", label_visibility="collapsed", placeholder="ask a follow-up question")
-    if c2.button("ask", use_container_width=True) and q.strip():
-        _ask_chat(q.strip())
-        st.rerun()
-
-    st.markdown("</div>", unsafe_allow_html=True)
+        c1, c2 = st.columns([5, 1])
+        q = c1.text_input("query", key="chat_q_input", label_visibility="collapsed", placeholder="ask a follow-up question")
+        if c2.button("ask", use_container_width=True) and q.strip():
+            _ask_chat(q.strip())
+            st.rerun()
 
 
 def _ask_chat(question: str):
